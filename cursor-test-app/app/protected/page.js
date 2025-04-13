@@ -12,7 +12,7 @@ export default function ProtectedPage() {
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h2 className="text-lg font-semibold text-blue-800 mb-2">
-              What's Next?
+              What&apos;s Next?
             </h2>
             <p className="text-blue-600">
               You can now access all the protected features and endpoints. This page serves as a placeholder for your actual protected content.
