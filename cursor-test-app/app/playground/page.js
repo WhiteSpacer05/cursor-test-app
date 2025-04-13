@@ -2,67 +2,21 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
-import Cookies from 'js-cookie';
 
 export default function APIPlayground() {
   const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({ show: false, message: '', type: 'default' });
   const router = useRouter();
 
-  const showNotification = (message, type) => {
-    setSnackbar({ show: true, message, type });
-    setTimeout(() => {
-      setSnackbar({ show: false, message: '', type: 'default' });
-    }, 3000);
-  };
-
-  const validateApiKey = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     
-    try {
-      // Initialize Supabase client
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-      );
-
-      // Query the api_keys table to check if the key exists and is valid
-      const { data, error } = await supabase
-        .from('api_keys')
-        .select('id')
-        .eq('key', apiKey)
-        .single();
-
-      if (error) {
-        showNotification('Invalid API key', 'error');
-        // Clear any existing invalid API key
-        Cookies.remove('validApiKey');
-        return;
-      }
-
-      if (data) {
-        // Store the valid API key in cookies
-        Cookies.set('validApiKey', apiKey, { expires: 1 }); // Expires in 1 day
-        showNotification('Valid API key', 'success');
-        // Wait for the notification to be visible before redirecting
-        setTimeout(() => {
-          router.push('/protected');
-        }, 1000);
-      } else {
-        showNotification('Invalid API key', 'error');
-        // Clear any existing invalid API key
-        Cookies.remove('validApiKey');
-      }
-    } catch (error) {
-      showNotification('Error validating API key', 'error');
-      // Clear any existing invalid API key
-      Cookies.remove('validApiKey');
-    } finally {
+    // Simple delay to simulate processing
+    setTimeout(() => {
+      router.push('/protected');
       setIsLoading(false);
-    }
+    }, 1000);
   };
 
   return (
@@ -71,7 +25,7 @@ export default function APIPlayground() {
         <h1 className="text-3xl font-bold mb-8">API Playground</h1>
         
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <form onSubmit={validateApiKey} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="apiKey" className="block text-sm font-medium text-gray-700 mb-2">
                 Enter your API Key
@@ -115,7 +69,7 @@ export default function APIPlayground() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    <span>Validating...</span>
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
@@ -152,25 +106,6 @@ export default function APIPlayground() {
           </form>
         </div>
       </div>
-
-      {/* Snackbar */}
-      {snackbar.show && (
-        <div
-          className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg transition-all transform ${
-            snackbar.type === 'success'
-              ? 'bg-green-500 text-white'
-              : snackbar.type === 'error'
-              ? 'bg-red-500 text-white'
-              : 'bg-gray-700 text-white'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {snackbar.type === 'success' && <span>✓</span>}
-            {snackbar.type === 'error' && <span>⚠</span>}
-            {snackbar.message}
-          </div>
-        </div>
-      )}
     </div>
   );
 } 
